@@ -7,14 +7,14 @@ public class CannonBall : MonoBehaviour {
     private void Start() {
         m_CannonController = GetComponentInParent<CannonController>();
     }
-    private void OnCollisionEnter(Collision collision) {
-        if(collision.transform.CompareTag("agent") ||
-           collision.transform.CompareTag("platform") ||
-           collision.transform.CompareTag("collision_area")) {
+    private void OnTriggerEnter(Collider collider) {
+        //print($"collider.transform.tag {collider.transform.tag}");
+        if(collider.transform.CompareTag("agent") ||
+           collider.transform.CompareTag("platform") ||
+           collider.transform.CompareTag("collision_area")) {
         
             Explode();
         }
-        
     }
 
     public void Explode() {

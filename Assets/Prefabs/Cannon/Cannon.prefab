@@ -43,7 +43,7 @@ GameObject:
   - component: {fileID: 9170186038003166710}
   m_Layer: 0
   m_Name: Cannon
-  m_TagString: Untagged
+  m_TagString: obstacle
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
   m_StaticEditorFlags: 0
@@ -164,5 +164,6 @@ MonoBehaviour:
   cannonMarker: {fileID: 4953450635638960815, guid: 0649d88e6d70a7e41be8887a25b421a1, type: 3}
   collideArea: {fileID: 6092149422349891353, guid: 547ee6d5d0248e34687949f7ef8a8d5d, type: 3}
   explosion: {fileID: 6355406707854909354, guid: a080b6a4ca1792f44aac74660930dcb5, type: 3}
+  mCannonSpawner: {fileID: 0}
   shotPos: {fileID: 423029395}
   firePower: 0.1

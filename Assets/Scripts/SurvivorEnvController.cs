@@ -189,7 +189,7 @@ public class SurvivorEnvController : MonoBehaviour {
     }
 
     /// <summary>
-    ///     Enable 
+    ///     Restarts the scene enviroment
     /// </summary>
     void ResetScene() {
         // Reset counter 

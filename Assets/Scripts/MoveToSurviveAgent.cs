@@ -112,12 +112,19 @@ public class MoveToSurviveAgent : Agent {
     ///     The element that has triggered the event
     /// </param>
     private void OnTriggerEnter(Collider collider) {
+        // Set reward for the agent based on the element that it collided with
+        bool gameover = CheckCollision(collider.transform);
+        // If agent died, start Game Over behaviour
+        if (gameover) GameOver(collider.gameObject.name);
+        
         if (collider.transform.CompareTag("collision_area")) {
             in_danger = true;
-        } else if (collider.transform.CompareTag("wind_area")) {
+        }       
+        if (collider.transform.CompareTag("wind_area")) {
             in_windArea = true;
             windArea = collider.gameObject;
-        }
+        } 
+        
     }
 
     /// <summary>
@@ -200,7 +207,9 @@ public class MoveToSurviveAgent : Agent {
     private bool CheckCollision(Transform col) {
         bool gameover = false;
         if (col.CompareTag("bounds") || 
-            col.CompareTag("obstacle")) {
+            col.CompareTag("obstacle") ||
+            col.CompareTag("cannon_ball")
+            ) {
             gameover = true;
             AddReward(-1f); // Set the negative reward for dying
         }

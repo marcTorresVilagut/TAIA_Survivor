@@ -13,6 +13,7 @@ TagManager:
   - weapon
   - wind_area
   - obstacle_spawner
+  - cannon_ball
   layers:
   - Default
   - TransparentFX

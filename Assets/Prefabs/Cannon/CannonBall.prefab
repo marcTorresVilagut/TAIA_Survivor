@@ -97,7 +97,7 @@ GameObject:
   - component: {fileID: 5593161301482176842}
   m_Layer: 0
   m_Name: CannonBall
-  m_TagString: obstacle
+  m_TagString: cannon_ball
   m_Icon: {fileID: 1206586993520771344, guid: 0000000000000000d000000000000000, type: 0}
   m_NavMeshLayer: 0
   m_StaticEditorFlags: 0
@@ -126,7 +126,7 @@ SphereCollider:
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 6757644455869226563}
   m_Material: {fileID: 0}
-  m_IsTrigger: 0
+  m_IsTrigger: 1
   m_Enabled: 1
   serializedVersion: 2
   m_Radius: 0.5
