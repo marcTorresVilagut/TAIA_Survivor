@@ -10,21 +10,29 @@ public class MoveToSurviveAgent : Agent {
     private Rigidbody m_AgentRb;
     private SurvivorEnvController m_GameController;
     private bool in_danger;
+    private GameObject m_RaycastOrigin;
     private bool in_windArea;
     private Vector3 wind_direction;
     private GameObject windArea;
     private float m_SurvivedTime;
+    private float m_rewardPerFrame;
+
 
     /// <summary>
     /// Initializes the attributes of the agent controller.
     /// </summary>
     public override void Initialize() {
+        // Basic components
         m_GameController = GetComponentInParent<SurvivorEnvController>();
         m_AgentRb = GetComponent<Rigidbody>();
         m_pushBlockSettings = FindObjectOfType<PushBlockSettings>();
-        in_danger = false;
 
-        // Wind area elements
+        // Cannons obstacle related components
+        in_danger = false;
+        var childTransforms = GetComponentsInChildren<Transform>();
+        foreach (Transform t in childTransforms) if (t.gameObject.name == "RayCastOrig") m_RaycastOrigin = t.gameObject;
+
+        // Fan obstacle related components
         in_windArea = false;
         windArea = null;
         m_SurvivedTime = 0f;
@@ -32,6 +40,9 @@ public class MoveToSurviveAgent : Agent {
 
     public override void OnEpisodeBegin() {
         m_SurvivedTime = 0f;
+        // The reward per frame will be the number of delta times that there are in the current survive time.
+        float famesPerEpisode = m_GameController.m_SurviveTime / Time.deltaTime;
+        m_rewardPerFrame = (1f / famesPerEpisode);
     }
 
     /// <summary>
@@ -39,14 +50,30 @@ public class MoveToSurviveAgent : Agent {
     /// </summary>
     /// <param name="sensor"></param>
     public override void CollectObservations(VectorSensor sensor) {
-        sensor.AddObservation(transform.localPosition);
-        sensor.AddObservation(in_danger ? 1 : 0);
+        // Agent position observation
+        sensor.AddObservation(transform.localPosition); // The position of the agent in the platform
         
-        sensor.AddObservation(in_windArea ? 1 : 0);
+        // Cannon related observations
+        sensor.AddObservation(in_danger ? 1 : 0); // Indicates whether the agent is in danger or not
+
+        RaycastHit hit;
+        Ray upRay = new Ray(m_RaycastOrigin.transform.position, Vector3.up);
+        // Cast a ray straight upwards.
+        if (Physics.Raycast(upRay, out hit, Mathf.Infinity)) {
+            // Get observation of the distance from the agent to the cannon ball obstacle
+            if (hit.transform.CompareTag("cannon_ball")) sensor.AddObservation(hit.distance);
+            else sensor.AddObservation(-1f);
+        } else {
+            sensor.AddObservation(-1f);
+        }
+
+
+
+        sensor.AddObservation(in_windArea ? 1 : 0); // Indicates whether the agent is in a wind area or not
         if(windArea != null) {
             sensor.AddObservation(0f);
             sensor.AddObservation(0f);
-        } else {
+        } else { // The direction of the wind
             sensor.AddObservation(wind_direction.x);
             sensor.AddObservation(wind_direction.z);
         }
@@ -62,7 +89,7 @@ public class MoveToSurviveAgent : Agent {
         // Move the agent using the action
         MoveAgent(actions.DiscreteActions);
 
-        AddReward(+1f/m_GameController.MaxEnvironmentSteps); // Reward for lifespan length (for reward density)
+        AddReward(m_rewardPerFrame); // Reward for lifespan length (for reward density)
     }
 
     /// <summary>
@@ -136,7 +163,7 @@ public class MoveToSurviveAgent : Agent {
     private void OnTriggerStay(Collider collider) {
         if (collider.transform.CompareTag("collision_area")) {
             // Add negative reward for not moving onto a safe position
-            //AddReward(-0.01f);
+            AddReward(-0.01f);
             in_danger = true;
         }
     }
@@ -150,7 +177,8 @@ public class MoveToSurviveAgent : Agent {
     private void OnTriggerExit(Collider collider) {
         if (collider.transform.CompareTag("collision_area")) {
             in_danger = false;
-        } else if (collider.transform.CompareTag("wind_area")) {
+        }
+        if (collider.transform.CompareTag("wind_area")) {
             in_windArea = false;
         } 
     }
@@ -181,7 +209,7 @@ public class MoveToSurviveAgent : Agent {
     ///     Adds a reward for surviving the time defined by the episode's scene
     /// </summary>
     public void AddSurvivedEpisodeReward() {;
-        AddReward(1000f);
+        AddReward(+1f);
     }
 
     /// <summary>
@@ -189,9 +217,6 @@ public class MoveToSurviveAgent : Agent {
     /// </summary>
     /// <param name="collider_name">The name of the obstacle's collider which the agent collided with</param>
     private void GameOver(string collider_name) {
-        // GameOver Behaviour
-        print($"Final Score: {GetCumulativeReward()}");
-
         // Notify Game controller about the collision that killed the agent
         m_GameController.KilledByObstacle(this, collider_name);
     }

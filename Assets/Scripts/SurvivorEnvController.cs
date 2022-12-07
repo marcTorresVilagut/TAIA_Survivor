@@ -16,18 +16,7 @@ public class SurvivorEnvController : MonoBehaviour {
         [HideInInspector]
         public Collider Col;
     }
-
-    [System.Serializable]
-    public class SpawnerInfo {
-        public GameObject Object;
-        [HideInInspector]
-        public Rigidbody Rb;
-        [HideInInspector]
-        public Collider Col;
-        [HideInInspector]
-        public Transform T;
-    }
-
+    
     /// <summary>
     /// Max Academy steps before this platform resets
     /// </summary>
@@ -37,7 +26,8 @@ public class SurvivorEnvController : MonoBehaviour {
     /// <summary>
     /// Time the agent has to survive to recieve a reward
     /// </summary>
-    private float m_SurviveTime;
+    [Header("Time to survive (s)")]
+    public float m_SurviveTime;
 
     /// <summary>
     /// The area bounds
@@ -82,13 +72,10 @@ public class SurvivorEnvController : MonoBehaviour {
         // Get spawner
         mCannonSpawner = GetComponentInChildren<CannonSpawner>();
         mFanSpawner = GetComponentInChildren<FanSpawner>();
-        mCannonSpawner.gameObject.SetActive(false);
-        mFanSpawner.gameObject.SetActive(false);
+        if(mCannonSpawner != null) mCannonSpawner.gameObject.SetActive(false);
+        if(mFanSpawner != null) mFanSpawner.gameObject.SetActive(false);
 
-        print($"Spawner: {mCannonSpawner}, {mFanSpawner}");
-
-        // Initialize Survive time
-        m_SurviveTime = 30f;
+        m_SurviveTime = 10f;
 
         // Start scene
         ResetScene();
@@ -96,27 +83,19 @@ public class SurvivorEnvController : MonoBehaviour {
 
     // Update is called once per frame
     void Update() {
-
         if(SurvivorAgent.Agent.GetSurvivedTime() >= m_SurviveTime) {
             print($"Agent survived {SurvivorAgent.Agent.GetSurvivedTime()} seconds");
             AgentSurvivedTime();    
         }
-        //m_ResetTimer += 1;
-        //if (m_ResetTimer >= MaxEnvironmentSteps && MaxEnvironmentSteps > 0) {
-        //    SurvivorAgent.Agent.EpisodeInterrupted();
-        //    ResetScene();
-        //}
-        
     }
 
     /// <summary>
     ///     Episode end's logic for when the agent has been killed by an obstacle of the enviroment
     /// </summary>
     public void KilledByObstacle(MoveToSurviveAgent agent, string obstacle_name) {
-        mCannonSpawner.gameObject.SetActive(false);
-        mFanSpawner.gameObject.SetActive(false);
+        if(mCannonSpawner != null) mCannonSpawner.gameObject.SetActive(false);
+        if(mFanSpawner != null) mFanSpawner.gameObject.SetActive(false);
         agent.gameObject.SetActive(false);
-        // print($"{obstacle_name} killed {agent.transform.name}");
 
         SurvivorAgent.Agent.EndEpisode();
 
@@ -135,7 +114,7 @@ public class SurvivorEnvController : MonoBehaviour {
 
         // Swap ground material for a bit to indicate failure
         StartCoroutine(SwapGroundMaterial(m_PushBlockSettings.goalScoredMaterial, 0.5f));
-        m_SurviveTime += 10f; // Add 10s more to survive
+        m_SurviveTime += 5f; // Add 10s more to survive
         ResetScene(); // Restart scene
     }
 
@@ -184,8 +163,8 @@ public class SurvivorEnvController : MonoBehaviour {
     IEnumerator EnableObstaclesSpawners(float time) {
         yield return new WaitForSeconds(time);
 
-        mCannonSpawner.gameObject.SetActive(true);
-        mFanSpawner.gameObject.SetActive(true);
+        if (mCannonSpawner != null) mCannonSpawner.gameObject.SetActive(true);
+        if (mFanSpawner != null) mFanSpawner.gameObject.SetActive(true);
     }
 
     /// <summary>
@@ -196,10 +175,14 @@ public class SurvivorEnvController : MonoBehaviour {
         // m_ResetTimer = 0;
 
         // Remove all obstacles of the enviroment
-        LifetimeController[] cannons = mCannonSpawner.GetComponentsInChildren<LifetimeController>();
-        foreach (LifetimeController c in cannons) Destroy(c.gameObject);
-        LifetimeController[] fans = mFanSpawner.GetComponentsInChildren<LifetimeController>();
-        foreach (LifetimeController f in fans) Destroy(f.gameObject);
+        if (mCannonSpawner != null) {
+            LifetimeController[] cannons = mCannonSpawner.GetComponentsInChildren<LifetimeController>();
+            foreach (LifetimeController c in cannons) Destroy(c.gameObject);
+        }
+        if (mFanSpawner != null) {
+            LifetimeController[] fans = mFanSpawner.GetComponentsInChildren<LifetimeController>();
+            foreach (LifetimeController f in fans) Destroy(f.gameObject);
+        }
 
         // Reset Agent
         var pos = useRandomAgentPosition ? GetRandomSpawnPos(true) : SurvivorAgent.StartingPos;
@@ -209,7 +192,7 @@ public class SurvivorEnvController : MonoBehaviour {
         SurvivorAgent.Rb.angularVelocity = Vector3.zero;
         SurvivorAgent.Agent.gameObject.SetActive(true);
 
-        // Wait 0.5s to enable obstacles
+        // Wait 0.5s to enable obstacle spawners again
         StartCoroutine(EnableObstaclesSpawners(0.5f));
     }
 }
