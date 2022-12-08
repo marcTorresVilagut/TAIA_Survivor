@@ -69,6 +69,7 @@
     <Compile Include="Assets\Scripts\RandomSpawner.cs" />
     <Compile Include="Assets\Scripts\SurvivorEnvController.cs" />
     <Compile Include="Assets\Scripts\ModelOverrider.cs" />
+    <Compile Include="Assets\SphereCaster.cs" />
   </ItemGroup>
   <ItemGroup>
     <None Include="Assets\TextMesh Pro\Shaders\TMPro.cginc" />

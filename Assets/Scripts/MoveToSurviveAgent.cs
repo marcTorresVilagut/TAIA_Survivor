@@ -8,6 +8,7 @@ using Unity.MLAgents.Sensors;
 public class MoveToSurviveAgent : Agent {
     private PushBlockSettings m_pushBlockSettings;
     private Rigidbody m_AgentRb;
+    private SphereCaster m_SphereCaster;
     private SurvivorEnvController m_GameController;
     private bool in_danger;
     private GameObject m_RaycastOrigin;
@@ -25,6 +26,7 @@ public class MoveToSurviveAgent : Agent {
         // Basic components
         m_GameController = GetComponentInParent<SurvivorEnvController>();
         m_AgentRb = GetComponent<Rigidbody>();
+        m_SphereCaster = GetComponentInChildren<SphereCaster>();
         m_pushBlockSettings = FindObjectOfType<PushBlockSettings>();
 
         // Cannons obstacle related components
@@ -55,20 +57,7 @@ public class MoveToSurviveAgent : Agent {
         
         // Cannon related observations
         sensor.AddObservation(in_danger ? 1 : 0); // Indicates whether the agent is in danger or not
-
-        RaycastHit hit;
-        Ray upRay = new Ray(m_RaycastOrigin.transform.localPosition, Vector3.up);
-        // Cast a ray straight upwards.
-        //if (Physics.Raycast(upRay, out hit, Mathf.Infinity)) {
-        if (Physics.SphereCast(m_RaycastOrigin.transform.localPosition, 
-            2f,
-            Vector3.up,
-            out hit)) {
-            // Get observation of the distance from the agent to the cannon ball obstacle
-            print($"hit: {hit.transform.tag}");
-            if (hit.transform.CompareTag("cannon_ball")) sensor.AddObservation(hit.distance);
-            else sensor.AddObservation(-1f);
-        } else sensor.AddObservation(-1f);
+        sensor.AddObservation(m_SphereCaster.GetCurrentHitDistance()); // Indicates the distance to a cannon ball
 
         sensor.AddObservation(in_windArea ? 1 : 0); // Indicates whether the agent is in a wind area or not
         if(windArea != null) {

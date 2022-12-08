@@ -716,6 +716,10 @@ PrefabInstance:
   m_Modification:
     m_TransformParent: {fileID: 0}
     m_Modifications:
+    - target: {fileID: 2721400034425549181, guid: 56aef942c8947d1409d225c9ee48c92f, type: 3}
+      propertyPath: m_Name
+      value: CannonBallSphereCaster
+      objectReference: {fileID: 0}
     - target: {fileID: 5068633990201644420, guid: 56aef942c8947d1409d225c9ee48c92f, type: 3}
       propertyPath: m_RootOrder
       value: 4
