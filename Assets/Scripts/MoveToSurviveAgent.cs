@@ -57,17 +57,18 @@ public class MoveToSurviveAgent : Agent {
         sensor.AddObservation(in_danger ? 1 : 0); // Indicates whether the agent is in danger or not
 
         RaycastHit hit;
-        Ray upRay = new Ray(m_RaycastOrigin.transform.position, Vector3.up);
+        Ray upRay = new Ray(m_RaycastOrigin.transform.localPosition, Vector3.up);
         // Cast a ray straight upwards.
-        if (Physics.Raycast(upRay, out hit, Mathf.Infinity)) {
+        //if (Physics.Raycast(upRay, out hit, Mathf.Infinity)) {
+        if (Physics.SphereCast(m_RaycastOrigin.transform.localPosition, 
+            2f,
+            Vector3.up,
+            out hit)) {
             // Get observation of the distance from the agent to the cannon ball obstacle
+            print($"hit: {hit.transform.tag}");
             if (hit.transform.CompareTag("cannon_ball")) sensor.AddObservation(hit.distance);
             else sensor.AddObservation(-1f);
-        } else {
-            sensor.AddObservation(-1f);
-        }
-
-
+        } else sensor.AddObservation(-1f);
 
         sensor.AddObservation(in_windArea ? 1 : 0); // Indicates whether the agent is in a wind area or not
         if(windArea != null) {
