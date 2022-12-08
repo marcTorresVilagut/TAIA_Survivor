@@ -181,7 +181,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: b13c7be694522aa4bbdfe86f41112f9d, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  MaxEnvironmentSteps: 25000
+  incrementEpisodeLenght: 0
   m_SurviveTime: 0
   areaBounds:
     m_Center: {x: 0, y: 0, z: 0}
@@ -382,7 +382,7 @@ MonoBehaviour:
     VectorActionDescriptions: []
     VectorActionSpaceType: 0
     hasUpgradedBrainParametersWithActionSpec: 1
-  m_Model: {fileID: 0}
+  m_Model: {fileID: 5022602860645237092, guid: 8bf1a9d20c2d1c1418436804eebb5ac5, type: 3}
   m_InferenceDevice: 0
   m_BehaviorType: 0
   m_BehaviorName: MoveToSurvive
@@ -794,7 +794,7 @@ PrefabInstance:
       objectReference: {fileID: 0}
     - target: {fileID: 381112833349232685, guid: 28e1be7c9732a6a4d866eee1eb965256, type: 3}
       propertyPath: m_IsActive
-      value: 0
+      value: 1
       objectReference: {fileID: 0}
     - target: {fileID: 381112833349232685, guid: 28e1be7c9732a6a4d866eee1eb965256, type: 3}
       propertyPath: m_TagString

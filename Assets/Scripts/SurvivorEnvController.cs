@@ -16,12 +16,13 @@ public class SurvivorEnvController : MonoBehaviour {
         [HideInInspector]
         public Collider Col;
     }
-    
+
     /// <summary>
-    /// Max Academy steps before this platform resets
+    ///  Whether to increment or not the time when successfully ending an episode
     /// </summary>
-    [Header("Max Environment Steps")] 
-    public int MaxEnvironmentSteps = 25000;
+    [Header("Increment episode lenght on success")]
+    public bool incrementEpisodeLenght = false;
+    
 
     /// <summary>
     /// Time the agent has to survive to recieve a reward
@@ -114,7 +115,7 @@ public class SurvivorEnvController : MonoBehaviour {
 
         // Swap ground material for a bit to indicate failure
         StartCoroutine(SwapGroundMaterial(m_PushBlockSettings.goalScoredMaterial, 0.5f));
-        m_SurviveTime += 5f; // Add 10s more to survive
+        if(incrementEpisodeLenght) m_SurviveTime += 5f; // Add 10s more to survive
         ResetScene(); // Restart scene
     }
 

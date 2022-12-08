@@ -14,28 +14,28 @@ public class CannonController : MonoBehaviour {
 
     // Cannon Firing variables
     public Transform shotPos;
-    public float firePower;
 
     // Start is called before the first frame update
     void Start() {
         mCannonSpawner = GetComponentInParent<CannonSpawner>();
-        // Spawn marker
-        Vector3 markPos = new Vector3(shotPos.position.x, -0.40f, shotPos.position.z);
-        var i_cannonBallMarker = Instantiate(cannonMarker, markPos, shotPos.rotation);
-        i_cannonBallMarker.transform.parent = gameObject.transform;
 
         // Fire cannon on 1 second
         Invoke(nameof(FireCannon), 1.0f);
     }
 
     public void FireCannon() {
+        // Spawn marker
+        Vector3 markPos = new Vector3(shotPos.position.x, -0.40f, shotPos.position.z);
+        var i_cannonBallMarker = Instantiate(cannonMarker, markPos, shotPos.rotation);
+        i_cannonBallMarker.transform.parent = gameObject.transform;
+
         // Create cannon ball instance
         var i_cannonBall = Instantiate(cannonBall, shotPos.position, shotPos.rotation);
         i_cannonBall.transform.parent = gameObject.transform;
         Rigidbody cannonBallRB = i_cannonBall.GetComponent<Rigidbody>();
-        
+
         // Add movement force to the cannon ball
-        cannonBallRB.AddForce(shotPos.forward * firePower);
+        cannonBallRB.AddForce(shotPos.forward);
 
         // Create firing explosion particle system
         var i_cannonExplosion = Instantiate(explosion, shotPos.position, shotPos.rotation);
@@ -48,6 +48,8 @@ public class CannonController : MonoBehaviour {
 
         var i_cannonballExplosion = Instantiate(explosion, explosion_pos, shotPos.rotation);
         i_cannonballExplosion.transform.parent = gameObject.transform;
+
+        Destroy(gameObject);
     }
     private void OnDestroy() {
         mCannonSpawner.CannonDestroyed();

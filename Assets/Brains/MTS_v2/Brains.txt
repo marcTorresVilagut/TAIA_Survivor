@@ -1,0 +1,3 @@
+Directoris:
+	· 2.1: El cervell generat sense obstacles amb la configuració del fitxer YAML a la carpeta de configs
+	· 2.2: El cervell generat sense obstacles amb la configuració del fitxer YAML per defecte

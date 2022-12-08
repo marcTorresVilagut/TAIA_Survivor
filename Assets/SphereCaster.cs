@@ -36,6 +36,10 @@ public class SphereCaster : MonoBehaviour {
         Gizmos.DrawWireSphere(end, sphereRadius);
     }
 
+    public bool CheckIfInDanger() {
+        return (currentHitObject != null && currentHitObject.transform.CompareTag("cannon_ball"));
+    }
+
     public float GetCurrentHitDistance() {
         return currentHitDistance;
     }

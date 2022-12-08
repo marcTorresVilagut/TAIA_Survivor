@@ -10,8 +10,6 @@ public class MoveToSurviveAgent : Agent {
     private Rigidbody m_AgentRb;
     private SphereCaster m_SphereCaster;
     private SurvivorEnvController m_GameController;
-    private bool in_danger;
-    private GameObject m_RaycastOrigin;
     private bool in_windArea;
     private Vector3 wind_direction;
     private GameObject windArea;
@@ -26,13 +24,10 @@ public class MoveToSurviveAgent : Agent {
         // Basic components
         m_GameController = GetComponentInParent<SurvivorEnvController>();
         m_AgentRb = GetComponent<Rigidbody>();
-        m_SphereCaster = GetComponentInChildren<SphereCaster>();
         m_pushBlockSettings = FindObjectOfType<PushBlockSettings>();
 
         // Cannons obstacle related components
-        in_danger = false;
-        var childTransforms = GetComponentsInChildren<Transform>();
-        foreach (Transform t in childTransforms) if (t.gameObject.name == "RayCastOrig") m_RaycastOrigin = t.gameObject;
+        m_SphereCaster = GetComponentInChildren<SphereCaster>();
 
         // Fan obstacle related components
         in_windArea = false;
@@ -56,9 +51,8 @@ public class MoveToSurviveAgent : Agent {
         sensor.AddObservation(transform.localPosition); // The position of the agent in the platform
         
         // Cannon related observations
-        sensor.AddObservation(in_danger ? 1 : 0); // Indicates whether the agent is in danger or not
+        sensor.AddObservation(m_SphereCaster.CheckIfInDanger() ? 1 : 0); // Indicates whether the agent is in danger or not
         sensor.AddObservation(m_SphereCaster.GetCurrentHitDistance()); // Indicates the distance to a cannon ball
-
         sensor.AddObservation(in_windArea ? 1 : 0); // Indicates whether the agent is in a wind area or not
         if(windArea != null) {
             sensor.AddObservation(0f);
@@ -134,9 +128,6 @@ public class MoveToSurviveAgent : Agent {
         // If agent died, start Game Over behaviour
         if (gameover) GameOver(collider.gameObject.name);
         
-        if (collider.transform.CompareTag("collision_area")) {
-            in_danger = true;
-        }       
         if (collider.transform.CompareTag("wind_area")) {
             in_windArea = true;
             windArea = collider.gameObject;
@@ -151,10 +142,9 @@ public class MoveToSurviveAgent : Agent {
     ///     The element that has triggered the event
     /// </param>
     private void OnTriggerStay(Collider collider) {
-        if (collider.transform.CompareTag("collision_area")) {
+        if (collider.transform.CompareTag("collision_area") || m_SphereCaster.CheckIfInDanger()) {
             // Add negative reward for not moving onto a safe position
             AddReward(-0.01f);
-            in_danger = true;
         }
     }
 
@@ -165,9 +155,6 @@ public class MoveToSurviveAgent : Agent {
     ///     The element that has triggered the event
     /// </param>
     private void OnTriggerExit(Collider collider) {
-        if (collider.transform.CompareTag("collision_area")) {
-            in_danger = false;
-        }
         if (collider.transform.CompareTag("wind_area")) {
             in_windArea = false;
         } 
@@ -184,6 +171,9 @@ public class MoveToSurviveAgent : Agent {
                 m_pushBlockSettings.agentRunSpeed * windController.strength * windController.direction,
                 ForceMode.VelocityChange);
         }
+
+        
+
         m_SurvivedTime += Time.deltaTime;
     }
 
@@ -221,12 +211,13 @@ public class MoveToSurviveAgent : Agent {
     /// <returns></returns>
     private bool CheckCollision(Transform col) {
         bool gameover = false;
-        if (col.CompareTag("bounds") || 
-            col.CompareTag("obstacle") ||
-            col.CompareTag("cannon_ball")
-            ) {
+        if (col.CompareTag("bounds")) {
             gameover = true;
-            AddReward(-1f); // Set the negative reward for dying
+            AddReward(-10f); // Set the negative reward for falling of the platform
+        }
+        if(col.CompareTag("cannon_ball")){
+            gameover = true;
+            AddReward(-15f); // Set the negative reward for dying by a cannon ball
         }
 
         return gameover;
